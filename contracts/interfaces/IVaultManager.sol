@@ -27,9 +27,7 @@ interface IVaultManager {
     }
 
     /// @notice Creates a time-locked deposit for an ERC20 token
-    /// @param token Address of ERC20 token
-    /// @param amount Amount to deposit
-    /// @param releaseTimestamp Timestamp at which tokens should be released
+    /// @param params The params necessary to create a deposit in vault, encoded as `MintParams` in calldata
     function createDeposit(DepositParams calldata params) external;
 
     /// @notice Withdraws tokens past release timestamp
