@@ -10,7 +10,7 @@ import "./interfaces/IVaultManager.sol";
 /// @title Vault Manager
 /// @author 0xAndrew - https://github.com/0xandrew
 /// @notice Locks ERC20 tokens for a specified amount of time
-contract VaultManager is IVaultManager {
+abstract contract VaultManager is IVaultManager {
     using SafeERC20 for IERC20;
 
     // details about
@@ -31,7 +31,7 @@ contract VaultManager is IVaultManager {
     mapping(address => Deposit) public _deposits;
 
     /// @inheritdoc IVaultManager
-    function createDeposit(DepositParams calldata params) external {
+    function createDeposit(DepositParams calldata params) external override {
         require(msg.sender != address(0), "VaultManager::createDeposit:IA");
         require(
             params.releaseTimestamp >= block.timestamp,
@@ -50,6 +50,6 @@ contract VaultManager is IVaultManager {
 
         _deposits[msg.sender] = _deposit;
 
-        event DepositCreated(msg.sender, params.token, params.amount, params.releaseTimestamp); 
+        emit DepositCreated(msg.sender, params.token, params.amount, params.releaseTimestamp); 
     }
 }
