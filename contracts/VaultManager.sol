@@ -48,7 +48,7 @@ abstract contract VaultManager is IVaultManager {
             params.amount
         );
 
-        DepositInfo memory _deposit = DepositInfo(
+        DepositInfo storage _deposit = DepositInfo(
             depositCount,
             msg.sender,
             params.token,
@@ -73,7 +73,7 @@ abstract contract VaultManager is IVaultManager {
     function withdraw(uint256 _did) external override {
         require(_did < depositCount, "VaultManager::withdraw:ID");
 
-        DepositInfo memory d = _depositInfo[_did];
+        DepositInfo storage d = _depositInfo[_did];
 
         require(
             d.releaseTimestamp <= block.timestamp,
