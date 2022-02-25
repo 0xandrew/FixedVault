@@ -6,15 +6,16 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import "./interfaces/IVaultManager.sol";
 
-
 /// @title Vault Manager
 /// @author 0xAndrew - https://github.com/0xandrew
 /// @notice Locks ERC20 tokens for a specified amount of time
 abstract contract VaultManager is IVaultManager {
     using SafeERC20 for IERC20;
 
-    // details about
-    struct Deposit {
+    // deposit details
+    struct DepositInfo {
+        // deposit id
+        uint256 did;
         // depositor address
         address depositor;
         // deposit token
@@ -27,8 +28,11 @@ abstract contract VaultManager is IVaultManager {
         bool claimed;
     }
 
-    /// @dev Deposits by user address
-    mapping(address => Deposit) public _deposits;
+    /// @dev DepositInfo by deposit id
+    mapping(uint256 => DepositInfo) public _depositInfo;
+
+    /// @dev deposits counter
+    uint256 private depositCount = 0;
 
     /// @inheritdoc IVaultManager
     function createDeposit(DepositParams calldata params) external override {
@@ -38,9 +42,14 @@ abstract contract VaultManager is IVaultManager {
             "VaultManager::createDeposit:IT"
         );
 
-        params.token.transferFrom(msg.sender, address(this), params.amount);
+        params.token.safeTransferFrom(
+            address(msg.sender),
+            address(this),
+            params.amount
+        );
 
-        Deposit memory _deposit = Deposit(
+        DepositInfo memory _deposit = DepositInfo(
+            depositCount,
             msg.sender,
             params.token,
             params.amount,
@@ -48,8 +57,34 @@ abstract contract VaultManager is IVaultManager {
             false
         );
 
-        _deposits[msg.sender] = _deposit;
+        _depositInfo[_deposit.did] = _deposit;
 
-        emit DepositCreated(msg.sender, params.token, params.amount, params.releaseTimestamp); 
+        depositCount += 1;
+
+        emit DepositCreated(
+            msg.sender,
+            address(params.token),
+            params.amount,
+            params.releaseTimestamp
+        );
+    }
+
+    /// @inheritdoc IVaultManager
+    function withdraw(uint256 _did) external override {
+        require(_did < depositCount, "VaultManager::withdraw:ID");
+
+        DepositInfo memory d = _depositInfo[_did];
+
+        require(
+            d.releaseTimestamp <= block.timestamp,
+            "VaultManager::withdraw:IRT"
+        );
+        require(!d.claimed, "VaultManager::withdraw:AC");
+
+        d.claimed = true;
+
+        d.token.safeTransfer(d.depositor, d.amount);
+
+        emit DepositClaimed(msg.sender, address(d.token), d.amount);
     }
 }
