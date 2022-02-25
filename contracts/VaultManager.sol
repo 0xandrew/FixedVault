@@ -9,7 +9,7 @@ import "./interfaces/IVaultManager.sol";
 /// @title Vault Manager
 /// @author 0xAndrew - https://github.com/0xandrew
 /// @notice Locks ERC20 tokens for a specified amount of time
-abstract contract VaultManager is IVaultManager {
+contract VaultManager is IVaultManager {
     using SafeERC20 for IERC20;
 
     // deposit details
@@ -48,7 +48,7 @@ abstract contract VaultManager is IVaultManager {
             params.amount
         );
 
-        DepositInfo storage _deposit = DepositInfo(
+        DepositInfo memory _deposit = DepositInfo(
             depositCount,
             msg.sender,
             params.token,
