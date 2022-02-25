@@ -15,9 +15,19 @@ interface IVaultManager {
     /// @param releaseTimestamp release timestamp
     event DepositCreated(
         address depositor,
-        IERC20 token,
+        address token,
         uint256 amount,
         uint256 releaseTimestamp
+    );
+
+    /// @notice Emitted when deposit is claimed
+    /// @param depositor Address of depositor
+    /// @param token Address of ERC20 token
+    /// @param amount Amount deposited
+    event DepositClaimed(
+        address depositor,
+        address token,
+        uint256 amount,
     );
 
     struct DepositParams {
@@ -31,6 +41,6 @@ interface IVaultManager {
     function createDeposit(DepositParams calldata params) external;
 
     /// @notice Withdraws tokens past release timestamp
-    /// @param token Address of ERC20 token
-    function withdraw(IERC20 token) external;
+    /// @param did Deposit id
+    function withdraw(uint256 did) external;
 }
