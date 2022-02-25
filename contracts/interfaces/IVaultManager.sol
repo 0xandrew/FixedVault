@@ -27,7 +27,7 @@ interface IVaultManager {
     event DepositClaimed(
         address depositor,
         address token,
-        uint256 amount,
+        uint256 amount
     );
 
     struct DepositParams {
